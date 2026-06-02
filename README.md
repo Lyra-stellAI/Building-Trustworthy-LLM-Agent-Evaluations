@@ -1,6 +1,6 @@
 # Building Trustworthy LLM & Agent Evaluations 
 
-📄 **[Building-Trustworthy-LLM-and-Agent-Evaluations.pdf](./Building-Trustworthy-LLM-and-Agent-Evaluations.pdf)** · 31 pages · compiled June 2026
+📄 [Building-Trustworthy-LLM-and-Agent-Evaluations.pdf](https://github.com/Lyra-stellAI/Building-Trustworthy-LLM-Agent-Evaluations/blob/Main/docs/Building-Trustworthy-LLM-and-Agent-Evaluations.pdf)
 
 > A practitioner's guide to LLM-as-a-judge and agent evaluation: building,
 > validating, and operationalizing evaluators, plus the methodologies and
