@@ -12,6 +12,8 @@ documented phenomena (distracted-evaluation flip rates, position/verbosity bias,
 jury effects, pass@k vs pass^k), so you can *see* the effects without an API key —
 then swap in a real model when you're ready.
 
+📄 The source guide (31-page PDF) and a reading guide live in [`docs/`](docs/README.md).
+
 ```bash
 git clone <this-repo> && cd Building-Trustworthy-LLM-Agent-Evaluations
 python -m pytest             # 74 tests, runs in ~1s, zero dependencies
