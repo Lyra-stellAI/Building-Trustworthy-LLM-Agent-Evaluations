@@ -1,18 +1,32 @@
-# Building Trustworthy LLM & Agent Evaluations
+# Building Trustworthy LLM & Agent Evaluations 
 
-Runnable companion code for the practitioner's guide of the same name — a tour of
-LLM-as-a-judge and agent evaluation: building, validating, and operationalizing
-evaluators, and the methodologies the major labs actually use. It closes with the
-open-source agent stack (LangChain, LangGraph, Deep Agents) and two worked
-examples — an LLM-wiki Deep Agent and an eval-driven harness optimizer.
+📄 **[Building-Trustworthy-LLM-and-Agent-Evaluations.pdf](./Building-Trustworthy-LLM-and-Agent-Evaluations.pdf)** · 31 pages · compiled June 2026
+
+> A practitioner's guide to LLM-as-a-judge and agent evaluation: building,
+> validating, and operationalizing evaluators, plus the methodologies and
+> frameworks the major labs actually use — LangChain/LangSmith,
+> Microsoft/AutoGen, Anthropic/Claude Code, and OpenAI. It synthesizes the
+> Hugging Face cookbooks, LangChain's calibration workflow, the COLM 2025
+> protocol-bias paper (Tripathi et al.), the PoLL jury paper (Verga et al.),
+> Anthropic's agent-eval methodology, and the RAGAS and DeepEval frameworks. It
+> closes with the open-source agent stack — LangChain, LangGraph, and Deep
+> Agents — and two worked examples (an LLM-wiki Deep Agent and the
+> better-harness eval-driven optimizer) that ground the concepts in real code.
+
+The central thesis: LLM-as-a-judge scales evaluation past surface metrics
+(ROUGE/BLEU), but **it does not work out of the box**. A naive judge is
+unreliable, the framing introduces systematic bias, and prompt-tweaking alone
+won't get you to an evaluator you'd trust for a shipping decision. A useful
+framing throughout — *a judge is a scoring mechanism, and like any mechanism it
+can be gamed.* The guide walks the full path from a synthetic dataset to
+calibrated judges, juries, RAG and agent evaluation, and harness optimization.
+
 
 Every idea in the guide is turned into code you can **run, read, and test**. It
 all runs **offline** against a deterministic *simulated judge* that reproduces the
 documented phenomena (distracted-evaluation flip rates, position/verbosity bias,
 jury effects, pass@k vs pass^k), so you can *see* the effects without an API key —
 then swap in a real model when you're ready.
-
-📄 The source guide (31-page PDF) and a reading guide live in [`docs/`](docs/README.md).
 
 ```bash
 git clone <this-repo> && cd Building-Trustworthy-LLM-Agent-Evaluations
