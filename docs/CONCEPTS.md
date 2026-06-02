@@ -93,6 +93,40 @@ the working checklist at the end.
 - **Takeaway:** an agentic score measures harness + model + environment; compare
   like-for-like; build your own task bank from real failures.
 
+## Part 12 — Open-source agent frameworks (agent = model + harness)
+- **Idea:** the model is frozen weights; the harness is everything around them
+  (prompt, tools, skills, context management, sub-agents, middleware). Most
+  behavior — and most improvement headroom — lives in the harness. The stack:
+  LangChain (blocks) → LangGraph (runtime) → Deep Agents (batteries-included
+  harness). "Trust the LLM, enforce at the tool/sandbox level."
+- **Code:** `harness.STACK_LAYERS`, `harness.DEEP_AGENT_COMPONENTS`,
+  `harness.harness_engineering_demo` (+13.7 on Terminal-Bench, model fixed),
+  `harness.skills_ablation_demo` (9% → 82%), `harness.boundary_enforcement`.
+- **Takeaway:** treat the harness as the unit of optimization; evaluate the
+  harness and model together; each surface is a knob an eval suite can test.
+
+## Part 13.1 — The LLM Wiki: a Deep Agent worth evaluating
+- **Idea:** a knowledge-base agent (ingest/query/lint) whose real work is state
+  change, with a machine-parseable log. Evaluate it with the research-agent
+  playbook (groundedness, coverage), state checks, and code-based log graders —
+  bespoke per case, reusing Parts 7–9.
+- **Code:** `deep_agent.LLMWiki` (returns Part 9 `Transcript`s),
+  `deep_agent.WikiGroundedness` (uses Part 8 `faithfulness`),
+  `deep_agent.Coverage`, `deep_agent.LogContains`.
+- **Takeaway:** grade the outcome, not the chat reply; agent evals are bespoke
+  per case, not one universal metric.
+
+## Part 13.2 — better-harness: closing the loop with evals
+- **Idea:** an agent optimizes another agent's harness, keeping a change only if
+  it generalizes to a private, strata-matched holdout. Greedy hill-climbing with
+  a regression guard; overfitting the visible train set fails the holdout and is
+  rejected — the Part 3 mechanism-design thesis made literal.
+- **Code:** `better_harness.HarnessConfig`, `better_harness.default_splits`,
+  `better_harness.optimize` (returns a full `Decision` history).
+- **Takeaway:** separate harness from eval harness; hold out a private split the
+  optimizer can't see; accept only on held-out improvement; keep local trace
+  artifacts; read the transcripts.
+
 ---
 
 ## The working checklist (from the guide)
@@ -117,4 +151,12 @@ the working checklist at the end.
   where you care; report pass@1 or pass^k; isolated trials.
 - [ ] **Capability vs. regression:** low-pass capability hills + ~100% regression
   guards; watch for saturation.
+- [ ] **Treat the harness as the unit of optimization:** `agent = model +
+  harness`; the prompt, tools, skills, context management, and middleware are the
+  knobs, and most headroom lives there, not in the weights. Evaluate the harness
+  and model together.
+- [ ] **Optimize against generalization, not the visible set:** when tuning a
+  harness (by hand or with an optimizer like better-harness), hold out a
+  strata-matched private split, accept a change only if held-out performance
+  improves, and keep local trace artifacts so failures are auditable.
 - [ ] **Measure your real system:** there is no universal recipe.

@@ -22,6 +22,9 @@ python examples/03_pairwise_vs_rubric.py   # or run a single part
 | `08_frameworks.py` | 8 | RAGAS metrics; DeepEval G-Eval / DAG / ArenaGEval |
 | `09_agent_eval.py` | 9 | Outcome grading, partial credit, pass@k vs pass^k, reward hacking |
 | `10_benchmarks.py` | 10–11 | Benchmark registry, per-agent playbooks, leaderboard cautions |
+| `11_harness_engineering.py` | 12 | `agent = model + harness`; +13.7 Terminal-Bench; skills 9%→82% |
+| `12_deep_agent_wiki.py` | 13.1 | LLM Wiki graded by outcome, groundedness, and its log |
+| `13_better_harness.py` | 13.2 | Eval-driven optimizer; overfits rejected, holdout/scorecard rise |
 
 ## Using a real model instead of the simulator
 

@@ -2,7 +2,9 @@
 
 Runnable companion code for the practitioner's guide of the same name — a tour of
 LLM-as-a-judge and agent evaluation: building, validating, and operationalizing
-evaluators, and the methodologies the major labs actually use.
+evaluators, and the methodologies the major labs actually use. It closes with the
+open-source agent stack (LangChain, LangGraph, Deep Agents) and two worked
+examples — an LLM-wiki Deep Agent and an eval-driven harness optimizer.
 
 Every idea in the guide is turned into code you can **run, read, and test**. It
 all runs **offline** against a deterministic *simulated judge* that reproduces the
@@ -12,8 +14,8 @@ then swap in a real model when you're ready.
 
 ```bash
 git clone <this-repo> && cd Building-Trustworthy-LLM-Agent-Evaluations
-python -m pytest             # 58 tests, runs in ~1s, zero dependencies
-python examples/run_all.py   # ten illustrated walkthroughs, one per part
+python -m pytest             # 74 tests, runs in ~1s, zero dependencies
+python examples/run_all.py   # 13 illustrated walkthroughs, one per part
 ```
 
 > **Is the simulator cheating?** No — and it's worth being precise about what's
@@ -53,6 +55,8 @@ use a jury, calibrate, operationalize, and evaluate agents.
 | 8 · Frameworks | [`frameworks.py`](trustworthy_evals/frameworks.py) | [`08`](examples/08_frameworks.py) | RAGAS metrics + DeepEval G-Eval/DAG/ArenaGEval |
 | 9 · Evaluating agents | [`agent_eval.py`](trustworthy_evals/agent_eval.py) | [`09`](examples/09_agent_eval.py) | Outcome grading, partial credit, **pass@10≈1.0 vs pass^10≈0.03** |
 | 10–11 · Landscape & benchmarks | [`benchmarks.py`](trustworthy_evals/benchmarks.py) | [`10`](examples/10_benchmarks.py) | Benchmark registry + per-agent playbooks |
+| 12 · agent = model + harness | [`harness.py`](trustworthy_evals/harness.py) | [`11`](examples/11_harness_engineering.py) | Harness-only change **+13.7** on Terminal-Bench; skills **9%→82%** |
+| 13 · Worked examples | [`deep_agent.py`](trustworthy_evals/deep_agent.py), [`better_harness.py`](trustworthy_evals/better_harness.py) | [`12`](examples/12_deep_agent_wiki.py), [`13`](examples/13_better_harness.py) | LLM Wiki graded by outcome; optimizer rejects overfits, **scorecard 0→2** |
 | — · Statistics | [`metrics.py`](trustworthy_evals/metrics.py) | — | Pearson, Cohen's κ, pass@k / pass^k |
 | — · Judge & prompts | [`llm.py`](trustworthy_evals/llm.py), [`prompts.py`](trustworthy_evals/prompts.py) | — | SimulatedJudge + real adapters; verbatim templates |
 
@@ -128,6 +132,39 @@ print(pass_hat_k(report.observed_rate, 10))  # ~0.03 "succeeds every time"  (fal
 At `k=1` they're identical; by `k=10` they tell opposite stories. Reliability-
 critical deployments watch `pass^k`.
 
+## agent = model + harness (Parts 12–13)
+
+Most of an agent's behavior — and most of your headroom to improve it — lives in
+the **harness** (prompt, tools, skills, context management, middleware), not the
+frozen weights. Changing *only* the harness moved a fixed model **+13.7 points**
+on Terminal-Bench, and curated skills lifted task completion from **9% to 82%**:
+
+```python
+from trustworthy_evals.harness import harness_engineering_demo, skills_ablation_demo
+print(harness_engineering_demo())   # 52.8 -> 66.5  (+13.7), model held fixed
+print(skills_ablation_demo())       # 9% -> 82% task completion
+```
+
+The two worked examples make it concrete. The **LLM Wiki** is a Deep Agent worth
+evaluating — graded by *outcome* (did the index refresh? did a declined review
+skip writes?), *groundedness* of cited answers, and a code grader over its
+machine-parseable log. **better-harness** is an eval-driven optimizer where one
+agent edits another's harness and a change is kept only if it generalizes to a
+*private holdout* — the Part 3 mechanism-design thesis made literal:
+
+```text
+--- better-harness decision log (the outer agent sees only TRAIN failures) ---
+  it0 KEEP generalizing  raise[conversation]                train=3 hold=2  accepted
+  it0 drop overfitting   memorize[visible train failures]   train=6 hold=0  holdout regressed (did not generalize)
+  ...
+  train 2->6   holdout 2->4 (private)   scorecard 0->2 (untouched -> the honest report)
+```
+
+The overfitting "memorize the visible cases" hack always maxes the training
+score and is **rejected every iteration** because it regresses the hidden
+holdout. The structure, not the prompt, guarantees the only way to score is to
+genuinely improve the harness.
+
 ## The simulated judge
 
 `SimulatedJudge` models a response as a latent `quality` plus style features
@@ -164,8 +201,9 @@ trustworthy_evals/      # the library (pure standard library, no runtime deps)
   metrics.py            # pearson, cohens_kappa, pass_at_k, pass_hat_k, ...
   datasets.py judge.py protocols.py biases.py jury.py
   calibration.py rag_eval.py frameworks.py agent_eval.py benchmarks.py
-examples/               # 10 runnable, illustrated walkthroughs (+ run_all.py)
-tests/                  # 58 pytest tests asserting the documented relationships
+  harness.py deep_agent.py better_harness.py   # Parts 12-13
+examples/               # 13 runnable, illustrated walkthroughs (+ run_all.py)
+tests/                  # 74 pytest tests asserting the documented relationships
 docs/CONCEPTS.md        # concept-to-code map and the working checklist
 ```
 
@@ -191,6 +229,10 @@ The guide synthesizes, and this code illustrates:
 - [RAGAS](https://docs.ragas.io) · [DeepEval](https://deepeval.com) — component and CI-style metric frameworks.
 - Anthropic — [*Demystifying Evals for AI Agents*](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) (grader families, capability vs. regression, pass@k/pass^k, agent vs. eval harness, eval-driven development).
 - LangChain LangSmith / OpenEvals / AgentEvals; Microsoft AutoGen / Agent Framework; OpenAI Evals API — the platform landscape (Part 10).
+- [Deep Agents](https://github.com/langchain-ai/deepagents) — the batteries-included agent harness on LangGraph (planning, virtual filesystem, sub-agents, middleware, pluggable backends).
+- LangChain — *Improving Deep Agents with Harness Engineering* (2026): `agent = model + harness`; harness-only changes moved `deepagents-cli` +13.7 pts (52.8 → 66.5) on Terminal-Bench 2.0.
+- LangChain — *Evaluating Deep Agents* (2025): per-case success criteria and trajectory/state assertions; curated skills lifted task completion from ~9% to ~82%.
+- [better-harness](https://github.com/langchain-ai/deepagents/tree/main/examples/better-harness) — a Deep Agent that optimizes another agent's harness against train/holdout/scorecard splits (kin to karpathy's `autoresearch` and Stanford's Meta-Harness).
 
 > The code is an educational reimplementation for the tutorial. For production,
 > reach for the real frameworks (RAGAS, DeepEval) and platforms (LangSmith,
